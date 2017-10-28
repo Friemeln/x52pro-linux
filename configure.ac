@@ -26,6 +26,7 @@ AC_CONFIG_FILES([
     utils/Makefile
     utils/cli/Makefile
     utils/test/Makefile
+    daemon/Makefile
     tests/Makefile
 ])
 AC_OUTPUT

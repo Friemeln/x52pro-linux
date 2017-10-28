@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = lib utils tests
+SUBDIRS = lib utils daemon tests
 
 # Extra files that need to be in the distribution
 EXTRA_DIST = README.md LICENSE

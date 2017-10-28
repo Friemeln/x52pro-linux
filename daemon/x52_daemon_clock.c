@@ -1,7 +1,7 @@
 /*
  * Saitek X52 Pro Daemon Clock Thread
  *
- * Copyright (C) 2015 Nirenjan Krishnan (nirenjan@nirenjan.org)
+ * Copyright (C) 2017 Nirenjan Krishnan (nirenjan@nirenjan.org)
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License as
@@ -13,61 +13,36 @@
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "libx52.h"
 #include "x52_daemon_common.h"
+#include "x52_daemon_thread.h"
 
 static void * clock_thread(void *context)
 {
     int rc;
+
+    /* Get the pointer to the shared structure from the context */
+    struct x52_daemon_control *x52d = context;
 
     /* This thread simply updates the clock display every second.
      * libx52_set_clock returns 0 only if there's a need to update the
      * clock.
      */
     for(;;) {
-        rc = libx52_set_clock(x52d.dev, time(NULL),
-                x52d.clock_timezone[LIBX52_CLOCK_1]);
+        rc = libx52_set_clock(x52d->dev, time(NULL),
+                x52d->clock_timezone[LIBX52_CLOCK_1]);
         if (!rc) {
-            libx52_update(x52d.dev);
+            libx52_update(x52d->dev);
         }
         sleep(1);
     }
 }
 
-int x52_clock_thread_control(int state)
+__attribute__((constructor))
+static void register_clock_thread(void)
 {
-    static pthread_t clock_pthr;
-    static int clock_thr_running = 0;
-
-    int status;
-
-    if (state) {
-        /* Start the thread, if it isn't already running */
-        if (clock_thr_running) {
-            return EEXIST;
-        }
-
-        /* Start the clock thread */
-        status = pthread_create(&clock_pthr, NULL, clock_thread, NULL);
-        if (status == 0) {
-            clock_thr_running = 1;
-        } 
-
-        return status;
-    } else {
-        if (!clock_thr_running) {
-            return ENOENT;
-        }
-
-        /* Cancel the clock thread */
-        status = pthread_cancel(clock_pthr);
-        if (status == 0) {
-            clock_thr_running = 0;
-        }
-
-        return status;
-    }
-
-    return 0;
+    x52_thread_register(X52_THREAD_CLOCK, "Clock thread",
+                        clock_thread, NULL, NULL); 
 }
