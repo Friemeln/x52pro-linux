@@ -6,3 +6,8 @@ x52joyd_CFLAGS = @X52_INCLUDE@
 x52joyd_LDADD = ../lib/libx52/libx52.la
 x52joyd_LDFLAGS = -lpthread
 
+EXTRA_DIST = \
+	x52_daemon_commands.h \
+	x52_daemon_common.h \
+	x52_daemon_control.h \
+	x52_daemon_thread.h
