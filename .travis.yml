@@ -1,10 +1,23 @@
 language: c
-script: ./autogen.sh && ./configure && make && make distcheck
+script: ./.travis_build.sh
+
+# Compile using both gcc & clang
+compiler:
+    - gcc
+    - clang
 
 # Use container based infrastructure
 sudo: false
+dist: trusty
 addons:
     apt:
         packages:
         - libusb-1.0-0-dev
         - libudev-dev
+        - realpath
+
+# Enable parallel make
+env:
+    global:
+        - MAKEFLAGS="-j 2"
+
